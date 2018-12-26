@@ -3,6 +3,9 @@ use std::net::TcpListener;
 use std::thread;
 use std::str;
 
+// use reqwest;
+use std::process::Command;
+
 fn main() {
     println!("Paste netcat server");
     start_tcp_server();
@@ -39,7 +42,21 @@ fn start_tcp_server() {
                         Ok(v) => v,
                         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
                     };
-                    stream.write(&content).unwrap();
+                    /*let params = [("code", s), ("lang", "plain"), ("name", "nc paste")];
+                    let client = reqwest::Client::new();
+                    let mut res = client.post("https://paste.nikitavbv.com/api/paste")
+                        .form(&params)
+                        .send().unwrap();
+                    let mut buf2: Vec<u8> = vec![];
+                    res.copy_to(&mut buf2);*/
+                    let output = Command::new("/usr/bin/curl")
+                     .arg("-X POST")
+                     .arg(format!("--data \"code={}\"", str::replace(s, "\"", "\\\"")))
+                     .arg("--data \"lang=plain&name=random\"")
+                     .arg("https://paste.nikitavbv.com/api/paste")
+                     .output();
+                    println!("{:?}", output.unwrap());
+                    //stream.write(&buf2).unwrap();
                 });
             }
             Err(_) => {
