@@ -1,12 +1,19 @@
 stages:
-  - build_image
+  - build_bin
 
-build_image:
-  image: docker:latest
-  stage: build_image
-  services:
-    - docker:dind
+build_bin:
+  image: ubuntu:xenial
+  stage: build_bin
   script:
-    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker build -t $CI_REGISTRY_IMAGE .
-    - docker push $CI_REGISTRY_IMAGE
+    # install required tools
+    - apt-get update && apt-get install -y git make
+    - https://sh.rustup.rs -sSf | sh
+    # install openssl
+    - git clone git://git.openssl.org/openssl.git && \
+        cd openssl && \
+        ./config && \
+        make && make install
+    # build binary
+    - cargo build --release
+  artifcats:
+    - target/release/paste_nc
