@@ -15,5 +15,5 @@ build_bin:
         make && make install
     # build binary
     - cargo build --release
-  artifcats:
+  artifacts:
     - target/release/paste_nc
