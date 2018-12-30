@@ -16,4 +16,5 @@ build_bin:
     # build binary
     - cargo build --release
   artifacts:
-    - target/release/paste_nc
+    paths:
+      - target/release/paste_nc
