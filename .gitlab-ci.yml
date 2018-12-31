@@ -6,8 +6,8 @@ build_bin:
   stage: build_bin
   script:
     # install required tools
-    - apt-get update && apt-get install -y git make
-    - https://sh.rustup.rs -sSf | sh
+    - apt-get update && apt-get install -y git make curl
+    - curl https://sh.rustup.rs -sSf | sh
     # install openssl
     - git clone git://git.openssl.org/openssl.git && \
         cd openssl && \
