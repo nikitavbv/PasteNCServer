@@ -7,7 +7,7 @@ build_bin:
   script:
     # install required tools
     - apt-get update && apt-get install -y git make curl
-    - curl https://sh.rustup.rs -sSf | sh -y
+    - curl https://sh.rustup.rs -sSf > rustup.sh && ./rustup.sh -y
     # install openssl
     - git clone git://git.openssl.org/openssl.git && \
         cd openssl && \
