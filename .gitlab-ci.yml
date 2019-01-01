@@ -10,6 +10,7 @@ build_bin:
     - curl https://sh.rustup.rs -sSf > rustup.sh
     - chmod +x rustup.sh
     - ./rustup.sh -y
+    - source ~/.bashrc
     # install openssl
     - git clone git://git.openssl.org/openssl.git
     - cd openssl
