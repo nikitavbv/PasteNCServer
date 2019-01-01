@@ -6,7 +6,7 @@ build_bin:
   stage: build_bin
   script:
     # install required tools
-    - apt-get update && apt-get install -y git make curl
+    - apt-get update && apt-get install -y git make curl gcc
     - curl https://sh.rustup.rs -sSf > rustup.sh
     - chmod +x rustup.sh
     - ./rustup.sh -y
