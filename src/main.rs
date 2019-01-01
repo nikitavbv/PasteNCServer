@@ -1,10 +1,9 @@
-use std::io::{Read, Write};
+use std::io::{Read};
 use std::net::TcpListener;
 use std::thread;
 use std::str;
 
 // use reqwest;
-use std::process::Command;
 
 fn main() {
     println!("Paste netcat server");
@@ -38,7 +37,7 @@ fn start_tcp_server() {
                         }
                     }
 
-                    let s = match str::from_utf8(&content) {
+                    let _s = match str::from_utf8(&content) {
                         Ok(v) => v,
                         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
                     };
@@ -49,13 +48,13 @@ fn start_tcp_server() {
                         .send().unwrap();
                     let mut buf2: Vec<u8> = vec![];
                     res.copy_to(&mut buf2);*/
-                    let output = Command::new("/usr/bin/curl")
+                    /*let output = Command::new("/usr/bin/curl")
                      .arg("-X POST")
                      .arg(format!("--data \"code={}\"", str::replace(s, "\"", "\\\"")))
                      .arg("--data \"lang=plain&name=random\"")
                      .arg("https://paste.nikitavbv.com/api/paste")
-                     .output();
-                    println!("{:?}", output.unwrap());
+                     .output();*/
+                    //println!("{:?}", output.unwrap());
                     //stream.write(&buf2).unwrap();
                 });
             }
