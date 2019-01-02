@@ -17,7 +17,7 @@ build_bin:
     - cd openssl
     - ./config
     - make && make install
-    - export OPENSSL_DIR=$(pwd)/openssl/include/
+    - export OPENSSL_DIR=$(pwd)/include/openssl
     - ls $OPENSSL_DIR
     # build binary
     - cargo build --release
