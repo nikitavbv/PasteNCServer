@@ -5,4 +5,5 @@ authors = ["Nikita Volobuev <nikitavbv@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
 reqwest="0.9.5"

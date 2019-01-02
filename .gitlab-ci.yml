@@ -19,6 +19,7 @@ build_bin:
     - mkdir lib
     - cp *.so* lib
     - export OPENSSL_DIR=$(pwd)
+    - export OPENSSL_STATIC=$(pwd) # link statically
     - cd ..
     # build binary
     - cargo build --release
