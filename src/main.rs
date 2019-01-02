@@ -37,7 +37,7 @@ fn start_tcp_server() {
                         }
                     }
 
-                    let _s = match str::from_utf8(&content) {
+                    let s = match str::from_utf8(&content) {
                         Ok(v) => v,
                         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
                     };
