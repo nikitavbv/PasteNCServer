@@ -18,8 +18,9 @@ build_bin:
     - ./config
     - make && make install
     - export OPENSSL_INCLUDE_DIR=$(pwd)/include/openssl
-    - export OPENSSL_LIB_DIR=$(pwd)/lib
+    - export OPENSSL_LIB_DIR=$(pwd)
     - ls $OPENSSL_LIB_DIR
+    - cd ..
     # build binary
     - cargo build --release
   artifacts:
