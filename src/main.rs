@@ -48,6 +48,7 @@ fn start_tcp_server() {
                         .send().unwrap();
                     let mut buf2: Vec<u8> = vec![];
                     res.copy_to(&mut buf2);
+                    println!(res);
                     /*let output = Command::new("/usr/bin/curl")
                      .arg("-X POST")
                      .arg(format!("--data \"code={}\"", str::replace(s, "\"", "\\\"")))
