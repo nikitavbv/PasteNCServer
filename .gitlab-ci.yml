@@ -12,7 +12,7 @@ build_bin:
     - ./rustup.sh -y
     - export PATH="$PATH:$HOME/.cargo/bin"
     # install openssl
-    - git clone git://git.openssl.org/openssl.git
+    - git clone https://git.openssl.org/openssl.git
     - cd openssl
     - ./config
     - make && make install
