@@ -1,8 +1,8 @@
 # PasteNCServer
 
-This is TCP server for a [paste service I developed and use](https://paste.nikitavbv.com).
+This is TCP server for a [paste service I developed](https://paste.nikitavbv.com).
 
-All data from client is saved as paste and URL is sent as response.
+All data from client is saved as paste and URL is sent as a response.
 
 This allows creating pastes from terminal on Unix:
 
@@ -13,7 +13,7 @@ some_command | nc paste.nikitavbv.com 4242
 or upload files:
 
 ```bash
-cat some_command | nc paste.nikitavbv.com 4242
+cat some_file | nc paste.nikitavbv.com 4242
 ```
 
 Pretty convenient, taking into account you can find `nc` on almost any Unix machine.
