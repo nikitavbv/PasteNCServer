@@ -3,9 +3,5 @@ services:
   app:
     image: registry.gitlab.com/nikitavbv/pastencserver:latest
     restart: always
-    networks:
-      - nginx_network
-
-networks:
-  nginx_network:
-    external: true
+    ports:
+        - "4242:4242"
