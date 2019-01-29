@@ -32,6 +32,8 @@ build_bin:
 build_image:
   image: docker:latest
   stage: build_image
+  dependencies:
+    - build_bin
   services:
     - docker:dind
   script:
