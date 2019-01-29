@@ -1,5 +1,7 @@
 stages:
   - build_bin
+  - build_image
+  - deploy
 
 build_bin:
   image: ubuntu:xenial
@@ -26,3 +28,30 @@ build_bin:
   artifacts:
     paths:
       - target/release/paste_nc
+
+build_image:
+  image: docker:latest
+  stage: build_image
+  services:
+    - docker:dind
+  script:
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE .
+    - docker push $CI_REGISTRY_IMAGE
+
+deploy-prod:
+  image: debian:jessie
+  stage: deploy
+  environment:
+    name: prod
+  script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" > ~/key && chmod 600 ~/key
+    - ssh-add ~/key
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    - ssh $PROD_USER@$PROD_SERVER mkdir -p $PROD_DIR
+    - scp docker-compose.prod.yml $PROD_USER@$PROD_SERVER:$PROD_DIR
+    - ssh $PROD_USER@$PROD_SERVER docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - ssh $PROD_USER@$PROD_SERVER "cd $PROD_DIR && docker-compose -f docker-compose.prod.yml pull && docker-compose -f docker-compose.prod.yml up -d"
