@@ -1,9 +1,13 @@
-use std::io::{Read};
+use std::io::{Read, Write};
 use std::net::TcpListener;
 use std::thread;
 use std::str;
 
 use reqwest;
+use serde_json::{Value};
+
+static PASTE_SERVICE_URL: &str = "https://paste.nikitavbv.com";
+const PORT: i32 = 4242;
 
 fn main() {
     println!("Paste netcat server");
@@ -11,7 +15,10 @@ fn main() {
 }
 
 fn start_tcp_server() {
-    let listener = TcpListener::bind("0.0.0.0:4242").unwrap();
+    let listener = match TcpListener::bind(&("0.0.0.0:".to_owned() + &PORT.to_string().to_owned())) {
+        Ok(n) => n,
+        Err(err) => panic!("Failed to start tcp server: {}", err)
+    };
     println!("tcp server started");
     for req in listener.incoming() {
         match req {
@@ -43,20 +50,29 @@ fn start_tcp_server() {
                     };
                     let params = [("code", s), ("lang", "plain"), ("name", "nc paste")];
                     let client = reqwest::Client::new();
-                    let mut res = client.post("https://paste.nikitavbv.com/api/paste")
+                    let mut res = match client.post(&(PASTE_SERVICE_URL.to_owned() + "/api/paste"))
                         .form(&params)
-                        .send().unwrap();
-                    let mut buf2: Vec<u8> = vec![];
-                    res.copy_to(&mut buf2);
-                    println!("{:?}", buf2);
-                    /*let output = Command::new("/usr/bin/curl")
-                     .arg("-X POST")
-                     .arg(format!("--data \"code={}\"", str::replace(s, "\"", "\\\"")))
-                     .arg("--data \"lang=plain&name=random\"")
-                     .arg("https://paste.nikitavbv.com/api/paste")
-                     .output();*/
-                    //println!("{:?}", output.unwrap());
-                    //stream.write(&buf2).unwrap();
+                        .send() {
+                            Ok(v) => v,
+                            Err(e) => panic!("Failed to make request to paste service: {}", e)
+                        };
+                    let mut response_buf: Vec<u8> = vec![];
+                    res.copy_to(&mut response_buf).expect("No data from paste service");
+                    let response_str = match str::from_utf8(&response_buf) {
+                        Ok(v) => v,
+                        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+                    };
+                    let response_data: Value = match serde_json::from_str(response_str) {
+                        Ok(v) => v,
+                        Err(e) => panic!("Failed to parse json: {}", e),
+                    };
+                    let paste_id = &response_data["id"];
+                    let mut paste_addr = "".to_owned();
+                    paste_addr.push_str(PASTE_SERVICE_URL);
+                    paste_addr.push_str("/");
+                    paste_addr.push_str(&paste_id.to_string().replace("\"", "")); 
+                    println!("Created paste: {}", paste_addr);
+                    stream.write((paste_addr + "\n").as_bytes()).expect("Failed to write response to client");
                 });
             }
             Err(_) => {
