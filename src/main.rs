@@ -48,7 +48,7 @@ fn start_tcp_server() {
                         Ok(v) => v,
                         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
                     };
-                    let params = [("code", s), ("lang", "plain"), ("name", "nc paste")];
+                    let params = [("code", s), ("name", "nc paste")];
                     let client = reqwest::Client::new();
                     let mut res = match client.post(&(PASTE_SERVICE_URL.to_owned() + "/api/paste"))
                         .form(&params)
