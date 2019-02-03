@@ -1,4 +1,4 @@
-use std::io::{Read, Write};
+use std::io::{Read, Write, ErrorKind};
 use std::net::TcpListener;
 use std::{thread, time, str};
 
@@ -24,41 +24,24 @@ fn start_tcp_server() {
         match req {
             Ok(mut stream) => {
                 thread::spawn(move || {
+                    stream.set_read_timeout(Some(STREAM_WAIT_TIME))
+                        .expect("Failed to set stream read timeout");
                     let mut content = Vec::new();
-                    let mut waiting_for_next = true;
                     loop {
                         let mut buf = [0; 1024];
                         match stream.read(&mut buf) {
-                            Ok(n) => {
-                                if n == 0 {
-                                    // Connection is closed
-                                    if !waiting_for_next {
-                                        println!("Connection is closed: timeout");
-                                        break;
-                                    }
-
-                                    thread::sleep(STREAM_WAIT_TIME);
-                                    waiting_for_next = false;
-                                } else {
-                                    waiting_for_next = true;
-                                    content.extend_from_slice(&buf[0..n]);
-                                    if n < buf.len() {
-                                        println!("Connection is closed: no more data");
-                                        break;
-                                    }
-                                }
-                            },
+                            Ok(n) => content.extend_from_slice(&buf[0..n]),
                             Err(err) => {
+                                if err.kind() == ErrorKind::WouldBlock {
+                                    // read timeout
+                                    break;
+                                }
                                 panic!(err);
                             }
                         }
                     }
-                    let s = match str::from_utf8(&content) {
-                        Ok(v) => v,
-                        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-                    };
-                    println!("New paste code:");
-                    println!("{}", s);
+                    let s = str::from_utf8(&content)
+                        .expect("Invalid UTF-8 sequence");
                     let params = [("code", s), ("name", "nc paste")];
                     let client = reqwest::Client::new();
                     let mut res = match client.post(&(PASTE_SERVICE_URL.to_owned() + "/api/paste"))
