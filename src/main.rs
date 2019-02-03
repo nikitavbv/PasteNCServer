@@ -33,6 +33,7 @@ fn start_tcp_server() {
                                 if n == 0 {
                                     // Connection is closed
                                     if !waiting_for_next {
+                                        println!("Connection is closed: timeout");
                                         break;
                                     }
 
@@ -42,6 +43,7 @@ fn start_tcp_server() {
                                     waiting_for_next = true;
                                     content.extend_from_slice(&buf[0..n]);
                                     if n < buf.len() {
+                                        println!("Connection is closed: no more data");
                                         break;
                                     }
                                 }
