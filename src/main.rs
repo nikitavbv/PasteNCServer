@@ -1,13 +1,13 @@
 use std::io::{Read, Write};
 use std::net::TcpListener;
-use std::thread;
-use std::str;
+use std::{thread, time, str};
 
 use reqwest;
 use serde_json::{Value};
 
 static PASTE_SERVICE_URL: &str = "https://paste.nikitavbv.com";
 const PORT: i32 = 4242;
+const STREAM_WAIT_TIME: time::Duration = time::Duration::from_millis(400);
 
 fn main() {
     println!("Paste netcat server");
@@ -24,18 +24,26 @@ fn start_tcp_server() {
         match req {
             Ok(mut stream) => {
                 thread::spawn(move || {
-                    let mut content = vec![];
+                    let mut content = Vec::new();
+                    let mut waiting_for_next = true;
                     loop {
                         let mut buf = [0; 1024];
                         match stream.read(&mut buf) {
                             Ok(n) => {
                                 if n == 0 {
                                     // Connection is closed
-                                    break;
-                                }
-                                content.extend_from_slice(&buf[0..n]);
-                                if n < buf.len() {
-                                    break;
+                                    if !waiting_for_next {
+                                        break;
+                                    }
+
+                                    thread::sleep(STREAM_WAIT_TIME);
+                                    waiting_for_next = false;
+                                } else {
+                                    waiting_for_next = true;
+                                    content.extend_from_slice(&buf[0..n]);
+                                    if n < buf.len() {
+                                        break;
+                                    }
                                 }
                             },
                             Err(err) => {
@@ -43,7 +51,6 @@ fn start_tcp_server() {
                             }
                         }
                     }
-
                     let s = match str::from_utf8(&content) {
                         Ok(v) => v,
                         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
